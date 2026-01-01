@@ -122,3 +122,8 @@ def read_lead(lead_id: int, db: Session = Depends(get_db)):
     db_lead.explanation = explanation
     
     return db_lead
+
+@app.get("/api/v1/user/profile")
+def read_user_profile(db: Session = Depends(get_db)):
+    # Mengambil data performa user
+    return crud.get_user_performance(db)

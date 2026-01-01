@@ -85,3 +85,24 @@ def get_dashboard_stats(db: Session):
         "job_dist": [{"name": i[0], "value": i[1]} for i in job_data],
         "econ_dist": [{"name": i[0], "value": i[1]} for i in economy_data]
     }
+    
+def get_user_performance(db: Session):
+    # Di sini kita asumsikan 'Sales User' saat ini memproses semua data di DB
+    # Jika nanti ada sistem Login, kita bisa filter berdasarkan user_id
+    total_processed = db.query(models.Lead).count()
+    high_leads = db.query(models.Lead).filter(models.Lead.prediction_label == "High Potential").count()
+    
+    # Simulasi KPI sederhana
+    return {
+        "name": "Ryan Besto Saragih",
+        "role": "Senior Sales Representative",
+        "email": "sales01@bank-asah.co.id",
+        "id_emp": "SLS-2025-088",
+        "joined_date": "15 Januari 2025",
+        "stats": {
+            "leads_processed": total_processed,
+            "conversion_rate": round((high_leads / total_processed * 100), 1) if total_processed > 0 else 0,
+            "monthly_target": 150,
+            "current_progress": high_leads
+        }
+    }

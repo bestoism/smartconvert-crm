@@ -53,7 +53,7 @@ const Sidebar = () => {
         <SidebarItem icon={FiHome} to="/">Dashboard</SidebarItem>
         <SidebarItem icon={FiDatabase} to="/leads">Leads Data</SidebarItem>
         {/* Placeholder untuk halaman profile nanti */}
-        <SidebarItem icon={FiUser} to="#">My Profile</SidebarItem> 
+        <SidebarItem icon={FiUser} to="/profile">My Profile</SidebarItem>
       </VStack>
     </Box>
   );

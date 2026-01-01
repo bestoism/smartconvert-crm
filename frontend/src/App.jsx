@@ -3,8 +3,9 @@ import { Box, Flex } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
-import Leads from './pages/Leads'; // <--- IMPORT HALAMAN BARU
+import Leads from './pages/Leads'; 
 import LeadDetail from './pages/LeadDetail';
+import MyProfile from './pages/MyProfile';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/leads" element={<Leads />} /> {/* <--- GANTI DI SINI */}
             {/* Kita siapkan route untuk detail nanti */}
             <Route path="/leads/:id" element={<LeadDetail />} /> {/* <--- Ganti di sini */}
+            <Route path="/profile" element={<MyProfile />} />
           </Routes>
         </Box>
       </Flex>
