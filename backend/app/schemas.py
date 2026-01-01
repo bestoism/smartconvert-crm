@@ -49,3 +49,9 @@ class DashboardStats(BaseModel):
     medium_potential: int
     low_potential: int
     conversion_rate_estimate: float
+    age_dist: List[Dict[str, Any]]
+    score_dist: List[Dict[str, Any]]
+    marital_dist: List[Dict[str, Any]]
+    edu_dist: List[Dict[str, Any]]
+    job_dist: List[Dict[str, Any]]
+    econ_dist: List[Dict[str, Any]]
