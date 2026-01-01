@@ -2,8 +2,9 @@ import pandas as pd
 import pickle
 import json
 import os
+import shap # Pastikan library shap terinstall
+import numpy as np
 
-# Definisikan Path secara dinamis agar tidak error di OS berbeda
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "../ml_assets/xgboost_tuned_v2.pkl")
 FEATURES_PATH = os.path.join(BASE_DIR, "../ml_assets/model_features.json")
@@ -11,10 +12,12 @@ FEATURES_PATH = os.path.join(BASE_DIR, "../ml_assets/model_features.json")
 class MLService:
     def __init__(self):
         self.model = None
+        self.explainer = None # Siapkan tempat untuk SHAP Explainer
         self.EXPECTED_COLUMNS = []
         
         self.load_model()
         self.load_features()
+        self.init_explainer() # Inisialisasi explainer
 
     def load_model(self):
         try:
@@ -31,68 +34,101 @@ class MLService:
             print(f"✅ Features loaded successfully ({len(self.EXPECTED_COLUMNS)} features)")
         except Exception as e:
             print(f"❌ Error loading features json: {e}")
-            # Fallback kosong, nanti akan error saat predict jika ini gagal
             self.EXPECTED_COLUMNS = []
 
+    def init_explainer(self):
+        """Inisialisasi SHAP TreeExplainer sekali saja biar cepat"""
+        if self.model:
+            try:
+                self.explainer = shap.TreeExplainer(self.model)
+                print("✅ SHAP Explainer initialized")
+            except Exception as e:
+                print(f"⚠️ Failed to init SHAP explainer: {e}")
+
     def preprocess_input(self, data: dict) -> pd.DataFrame:
-        """
-        Mengubah dictionary input mentah menjadi DataFrame yang siap diprediksi.
-        """
-        # 1. Buat DataFrame dari input dictionary
+        # 1. Buat DataFrame
         df = pd.DataFrame([data])
         
-        # 2. Feature Engineering: 'pernah_dihubungi'
+        # 2. Feature Engineering
         if 'pdays' in df.columns:
-            # Pastikan pdays numeric dulu
             df['pdays'] = pd.to_numeric(df['pdays'], errors='coerce').fillna(999)
             df['pernah_dihubungi'] = df['pdays'].apply(lambda x: 0 if x == 999 else 1)
             df = df.drop(columns=['pdays'])
         
-        # 3. One Hot Encoding
-        # Kita encode semua kolom kategorikal yang ada di data input
-        # Note: Kita tidak perlu list manual kategori, pandas akan encode yang string
+        # 3. Encoding & Alignment
         df_encoded = pd.get_dummies(df, drop_first=True)
-        
-        # 4. Alignment (Penyelarasan Kolom) - INI BAGIAN PENTING
-        # Kita buat frame kosong dengan kolom yang SAMA PERSIS dengan model_features.json
         final_df = pd.DataFrame(0, index=df.index, columns=self.EXPECTED_COLUMNS)
         
-        # Masukkan data yang cocok namanya
         for col in df_encoded.columns:
-            # Kadang get_dummies menghasilkan separator beda, atau nama sedikit beda
-            # Tapi asumsi kita pakai data standar UCI, namanya akan match
+            # Normalisasi nama kolom (titik ke underscore) untuk matching
+            col_fixed = col.replace('.', '_')
+            # Cek kedua kemungkinan (nama asli atau nama fixed)
             if col in final_df.columns:
                 final_df[col] = df_encoded[col]
-            else:
-                # Debugging: Cek jika ada kolom yang terbuang (opsional)
-                pass
+            elif col_fixed in final_df.columns:
+                final_df[col_fixed] = df_encoded[col]
                 
         return final_df
 
     def predict(self, data: dict):
-        if not self.model:
-            return {"error": "Model not loaded"}
-        
-        if not self.EXPECTED_COLUMNS:
-            return {"error": "Model features config not loaded"}
+        if not self.model: return {"error": "Model not loaded"}
         
         try:
-            # Preprocess
             processed_data = self.preprocess_input(data)
-            
-            # Predict Probability
             probability = self.model.predict_proba(processed_data)[0][1]
-            
-            # Labeling
             label = "High Potential" if probability > 0.7 else "Medium Potential" if probability > 0.3 else "Low Potential"
             
-            return {
-                "score": float(probability),
-                "label": label
-            }
+            return {"score": float(probability), "label": label}
         except Exception as e:
-            import traceback
-            traceback.print_exc() # Print error di terminal biar kelihatan
             return {"error": str(e)}
+
+    def explain_prediction(self, data: dict):
+        """
+        Menghasilkan penjelasan SHAP values dan Rekomendasi Percakapan
+        """
+        if not self.explainer:
+            return None
+
+        try:
+            processed_data = self.preprocess_input(data)
+            shap_values = self.explainer.shap_values(processed_data)
+            
+            # XGBoost binary classification return array of shape (1, n_features)
+            # Kita ambil index 0
+            values = shap_values[0]
+            
+            # Buat list fitur dan dampaknya
+            explanation = []
+            for i, col_name in enumerate(self.EXPECTED_COLUMNS):
+                impact = float(values[i])
+                if abs(impact) > 0.05: # Ambil hanya yang berdampak signifikan
+                    explanation.append({
+                        "feature": col_name,
+                        "impact": impact,
+                        "value": float(processed_data.iloc[0, i])
+                    })
+            
+            # Sort by absolute impact (terbesar ke terkecil)
+            explanation.sort(key=lambda x: abs(x['impact']), reverse=True)
+            
+            # Generate Simple Insight / Script (Next Best Conversation)
+            top_feature = explanation[0]['feature'] if explanation else ""
+            recommendation = "Gali kebutuhan nasabah secara umum."
+            
+            if "nr_employed" in top_feature or "euribor" in top_feature:
+                recommendation = "Buka percakapan dengan membahas kondisi ekonomi yang sedang stabil/bagus untuk investasi."
+            elif "pernah_dihubungi" in top_feature:
+                recommendation = "Sebutkan bahwa kita pernah menghubungi beliau sebelumnya dan ada penawaran baru."
+            elif "age" in top_feature:
+                recommendation = "Sesuaikan nada bicara dengan usia nasabah (pensiunan vs pekerja aktif)."
+            
+            return {
+                "shap_values": explanation[:5], # Ambil Top 5
+                "recommendation": recommendation
+            }
+            
+        except Exception as e:
+            print(f"Explain Error: {e}")
+            return None
 
 ml_service = MLService()

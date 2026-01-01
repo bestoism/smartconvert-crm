@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 # Base Schema (Data dasar nasabah)
@@ -36,6 +36,8 @@ class LeadResponse(LeadBase):
     prediction_score: Optional[float] = None
     prediction_label: Optional[str] = None
     created_at: datetime
+    
+    explanation: Optional[Dict[str, Any]] = None 
 
     class Config:
         from_attributes = True # Dulu orm_mode = True

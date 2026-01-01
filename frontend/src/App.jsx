@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Leads from './pages/Leads'; // <--- IMPORT HALAMAN BARU
+import LeadDetail from './pages/LeadDetail';
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/leads" element={<Leads />} /> {/* <--- GANTI DI SINI */}
             {/* Kita siapkan route untuk detail nanti */}
-            <Route path="/leads/:id" element={<Box p={10} color="white">Detail Page Coming Soon</Box>} /> 
+            <Route path="/leads/:id" element={<LeadDetail />} /> {/* <--- Ganti di sini */}
           </Routes>
         </Box>
       </Flex>

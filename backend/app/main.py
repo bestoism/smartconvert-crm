@@ -88,7 +88,21 @@ def read_stats(db: Session = Depends(get_db)):
 # --- 4. Endpoint Detail Lead (XAI Placeholder) ---
 @app.get("/api/v1/leads/{lead_id}", response_model=schemas.LeadResponse)
 def read_lead(lead_id: int, db: Session = Depends(get_db)):
-    lead = crud.get_lead_by_id(db, lead_id=lead_id)
-    if lead is None:
+    # 1. Ambil data dari Database
+    db_lead = crud.get_lead_by_id(db, lead_id=lead_id)
+    if db_lead is None:
         raise HTTPException(status_code=404, detail="Lead not found")
-    return lead
+    
+    # 2. Konversi object Database ke Dictionary
+    lead_dict = db_lead.__dict__.copy()
+    
+    # 3. Hitung Penjelasan SHAP secara Real-time
+    # Kita harus memfilter key yang bukan fitur (seperti id, created_at, prediction_score)
+    # Cara gampangnya: kita kirim lead_dict, nanti ml_service yang filter via preprocess
+    explanation = ml_service.explain_prediction(lead_dict)
+    
+    # 4. Tempelkan hasil penjelasan ke respons
+    # (Kita tidak simpan ke DB biar hemat storage, hitung on-the-fly aja)
+    db_lead.explanation = explanation
+    
+    return db_lead
