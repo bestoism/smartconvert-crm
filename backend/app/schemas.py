@@ -4,25 +4,27 @@ from datetime import datetime
 
 # Base Schema (Data dasar nasabah)
 class LeadBase(BaseModel):
-    age: int
-    job: str
-    marital: str
-    education: str
-    default: str
-    housing: str
-    loan: str
-    contact: str
-    month: str
-    day_of_week: str
-    campaign: int
-    pdays: int
-    previous: int
-    poutcome: str
-    emp_var_rate: float
-    cons_price_idx: float
-    cons_conf_idx: float
-    euribor3m: float
-    nr_employed: float
+    age: Optional[int] = None
+    job: Optional[str] = None
+    marital: Optional[str] = None
+    education: Optional[str] = None
+    default: Optional[str] = None
+    housing: Optional[str] = None
+    loan: Optional[str] = None
+    contact: Optional[str] = None
+    month: Optional[str] = None
+    day_of_week: Optional[str] = None
+    campaign: Optional[int] = None
+    pdays: Optional[int] = None
+    previous: Optional[int] = None
+    poutcome: Optional[str] = None
+    
+    # INI YANG BIKIN ERROR TADI, KITA JADIKAN OPTIONAL
+    emp_var_rate: Optional[float] = None
+    cons_price_idx: Optional[float] = None
+    cons_conf_idx: Optional[float] = None
+    euribor3m: Optional[float] = None
+    nr_employed: Optional[float] = None
 
 # Schema untuk Create (sama dengan Base)
 class LeadCreate(LeadBase):

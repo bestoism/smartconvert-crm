@@ -26,7 +26,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,      # Izinkan frontend mengakses
+    allow_origins=["*"],      # Izinkan frontend mengakses
     allow_credentials=True,
     allow_methods=["*"],        # Izinkan semua method (GET, POST, dll)
     allow_headers=["*"],        # Izinkan semua header
@@ -53,6 +53,7 @@ async def upload_leads_csv(file: UploadFile = File(...), db: Session = Depends(g
         except:
              df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=',')
 
+        df.columns = [c.replace('.', '_') for c in df.columns]
         results = []
         for index, row in df.iterrows():
             lead_data = row.to_dict()
