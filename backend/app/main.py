@@ -45,24 +45,38 @@ async def upload_leads_csv(file: UploadFile = File(...), db: Session = Depends(g
 
     try:
         contents = await file.read()
-        # Coba baca dengan separator ; dulu (format bank UCI)
         try:
             df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=';')
-            if df.shape[1] < 2: # Kalau gagal parsing kolom, coba koma
-                df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=',')
+            if df.shape[1] < 2:
+                 df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=',')
         except:
              df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=',')
 
-        df.columns = [c.replace('.', '_') for c in df.columns]
+        # --- PERBAIKAN DI SINI ---
+        # JANGAN ubah df.columns secara global agar ML tetap dapat nama kolom asli (pakai titik)
+        # df.columns = [c.replace('.', '_') for c in df.columns] <--- HAPUS BARIS INI
+        
         results = []
         for index, row in df.iterrows():
-            lead_data = row.to_dict()
-            prediction = ml_service.predict(lead_data)
+            lead_data_raw = row.to_dict() # Ini masih pakai titik (emp.var.rate), BAGUS UNTUK ML
             
-            valid_columns = models.Lead.__table__.columns.keys()
-            filtered_lead_data = {k: v for k, v in lead_data.items() if k in valid_columns}
+            # 1. Prediksi pakai data RAW (sesuai JSON features)
+            prediction = ml_service.predict(lead_data_raw)
             
-            saved_lead = crud.create_lead(db, filtered_lead_data, prediction)
+            # 2. Siapkan data untuk Database (Ganti titik jadi underscore HANYA DISINI)
+            lead_data_for_db = {}
+            valid_db_columns = models.Lead.__table__.columns.keys()
+            
+            for k, v in lead_data_raw.items():
+                # Ubah key misal 'emp.var.rate' jadi 'emp_var_rate'
+                clean_key = k.replace('.', '_')
+                
+                # Masukkan hanya jika kolomnya ada di tabel Database
+                if clean_key in valid_db_columns:
+                    lead_data_for_db[clean_key] = v
+            
+            # 3. Simpan
+            saved_lead = crud.create_lead(db, lead_data_for_db, prediction)
             results.append(saved_lead)
 
         return {
@@ -72,6 +86,8 @@ async def upload_leads_csv(file: UploadFile = File(...), db: Session = Depends(g
         }
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error processing CSV: {str(e)}")
 
 # --- 2. Endpoint Get Leads (List Data) ---
