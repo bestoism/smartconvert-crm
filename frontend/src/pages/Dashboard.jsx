@@ -74,12 +74,23 @@ const Dashboard = () => {
           color="yellow.400" 
         />
         <StatCard 
-          label="Conversion Est." 
-          value={`${stats?.conversion_rate_estimate || 0}%`} 
-          helpText="Based on prediction"
+          label="Low Potential" 
+          value={stats?.low_potential || 0} 
+          helpText="Lowest priority"
           icon={FiAlertCircle} 
-          color="purple.400" 
+          color="red.400" 
         />
+      </SimpleGrid>
+      <SimpleGrid columns={1} mb={8}>
+         <Card bg="gray.800" borderLeft="4px" borderLeftColor="purple.400">
+            <CardBody>
+               <Stat>
+                  <StatLabel color="gray.400">Estimated Conversion Rate</StatLabel>
+                  <StatNumber fontSize="3xl" color="white">{stats?.conversion_rate_estimate || 0}%</StatNumber>
+                  <StatHelpText>Based on High Potential Leads among total population</StatHelpText>
+               </Stat>
+            </CardBody>
+         </Card>
       </SimpleGrid>
 
       {/* Area Kosong untuk Grafik nanti */}
