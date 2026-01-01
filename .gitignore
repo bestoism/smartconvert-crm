@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+.ipynb_checkpoints
+*.csv
+!bank_additional_cleaned_1B.csv
+
+node_modules/
+build/
+dist/
+.DS_Store
+.vscode/
