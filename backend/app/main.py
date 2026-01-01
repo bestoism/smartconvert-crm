@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware  # <--- IMPORT INI
 from sqlalchemy.orm import Session
 from typing import List
 import pandas as pd
@@ -17,6 +18,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# --- KONFIGURASI CORS (PENTING BUAT REACT) ---
+origins = [
+    "http://localhost:5173",    # Alamat Frontend React kamu
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,      # Izinkan frontend mengakses
+    allow_credentials=True,
+    allow_methods=["*"],        # Izinkan semua method (GET, POST, dll)
+    allow_headers=["*"],        # Izinkan semua header
+)
+# ---------------------------------------------
+
 @app.get("/")
 def read_root():
     return {"message": "SmartConvert API is running 🚀"}
@@ -24,35 +40,24 @@ def read_root():
 # --- 1. Endpoint Upload CSV (Batch Processing) ---
 @app.post("/api/v1/upload-csv")
 async def upload_leads_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    """
-    Upload file CSV, proses prediksi tiap baris, dan simpan ke database.
-    """
-    # Validasi tipe file
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="File must be a CSV")
 
     try:
-        # Baca file CSV ke Pandas DataFrame
         contents = await file.read()
-        df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=';') # Cek separator, kadang ; kadang ,
-        
-        # Jika cuma 1 kolom, mungkin separatornya salah, coba koma
-        if df.shape[1] < 2:
+        # Coba baca dengan separator ; dulu (format bank UCI)
+        try:
+            df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=';')
+            if df.shape[1] < 2: # Kalau gagal parsing kolom, coba koma
+                df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=',')
+        except:
              df = pd.read_csv(io.StringIO(contents.decode('utf-8')), sep=',')
 
         results = []
-        
-        # Loop setiap baris data (Iterrows tidak efisien utk data jutaan, tapi oke utk ribuan)
         for index, row in df.iterrows():
-            # Ubah row jadi dictionary
             lead_data = row.to_dict()
-            
-            # Lakukan Prediksi Menggunakan ML Service
             prediction = ml_service.predict(lead_data)
             
-            # Simpan ke Database via CRUD
-            # Kita filter lead_data agar hanya kolom yang ada di model Database yang masuk
-            # (Untuk mencegah error jika CSV punya kolom aneh2)
             valid_columns = models.Lead.__table__.columns.keys()
             filtered_lead_data = {k: v for k, v in lead_data.items() if k in valid_columns}
             
@@ -62,7 +67,7 @@ async def upload_leads_csv(file: UploadFile = File(...), db: Session = Depends(g
         return {
             "status": "success", 
             "message": f"Successfully processed {len(results)} leads",
-            "sample_data": results[:5] # Tampilkan 5 data awal sbg bukti
+            "sample_data": results[:5] 
         }
 
     except Exception as e:
