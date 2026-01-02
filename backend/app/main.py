@@ -127,3 +127,13 @@ def read_lead(lead_id: int, db: Session = Depends(get_db)):
 def read_user_profile(db: Session = Depends(get_db)):
     # Mengambil data performa user
     return crud.get_user_performance(db)
+
+@app.put("/api/v1/leads/{lead_id}/notes")
+def update_lead_notes(lead_id: int, notes_data: dict, db: Session = Depends(get_db)):
+    db_lead = crud.get_lead_by_id(db, lead_id=lead_id)
+    if not db_lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    db_lead.notes = notes_data.get("notes")
+    db.commit()
+    return {"status": "success", "message": "Note saved"}

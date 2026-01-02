@@ -25,6 +25,9 @@ class LeadBase(BaseModel):
     cons_conf_idx: Optional[float] = None
     euribor3m: Optional[float] = None
     nr_employed: Optional[float] = None
+    
+    balance: Optional[float] = 0.0
+    notes: Optional[str] = None
 
 # Schema untuk Create (sama dengan Base)
 class LeadCreate(LeadBase):

@@ -42,3 +42,6 @@ class Lead(Base):
     
     # --- System Info ---
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    balance = Column(Float, default=0.0) # Saldo Nasabah
+    notes = Column(String, nullable=True) # Catatan dari Tim Sales
