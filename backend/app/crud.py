@@ -127,12 +127,17 @@ def get_user_profile(db: Session):
     active_days = (datetime.now() - first_lead.created_at).days + 1 if first_lead else 0
 
     # Ambil 5 Aktivitas Terbaru (Recent Activity)
-    recent_leads = db.query(models.Lead).order_by(models.Lead.created_at.desc()).limit(5).all()
+    recent_leads = db.query(models.Lead).order_by(models.Lead.updated_at.desc()).limit(5).all()
+    
     activities = []
     for lead in recent_leads:
-        action = "Added to database" if not lead.notes else "Updated notes for"
+        # Jika updated_at != created_at, berarti itu sebuah Update Notes
+        is_updated = lead.updated_at > lead.created_at
+        action = "Updated notes for" if is_updated else "Added to database"
+        
         activities.append({
-            "time": lead.created_at.strftime("%Y-%m-%d %H:%M"),
+            "lead_id": lead.id, 
+            "time": lead.updated_at.strftime("%Y-%m-%d %H:%M"),
             "content": f"{action} Nasabah-{lead.id}"
         })
 

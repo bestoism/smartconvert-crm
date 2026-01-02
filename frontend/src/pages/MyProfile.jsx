@@ -1,12 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box, Flex, Heading, Text, Avatar, Card, CardBody, SimpleGrid, Icon, 
-  Divider, Progress, VStack, HStack, Spinner, Center, Button, 
-  Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter,
-  FormControl, FormLabel, Input, useDisclosure, useToast
+  Box,
+  Flex,
+  Heading,
+  Text,
+  Avatar,
+  Card,
+  CardBody,
+  SimpleGrid,
+  Icon,
+  Divider,
+  Progress,
+  VStack,
+  HStack,
+  Spinner,
+  Center,
+  Button,
+  IconButton,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  FormControl,
+  FormLabel,
+  Input,
+  useDisclosure,
+  useToast
 } from '@chakra-ui/react';
-import { FiMail, FiCalendar, FiTarget, FiAward, FiBarChart2, FiClock, FiEdit3, FiTrendingUp } from 'react-icons/fi';
+
+import {
+  FiMail,
+  FiCalendar,
+  FiTarget,
+  FiAward,
+  FiBarChart2,
+  FiClock,
+  FiEdit3,
+  FiTrendingUp,
+  FiChevronRight,
+  FiExternalLink
+} from 'react-icons/fi';
+
+import { Link as RouterLink } from 'react-router-dom';
 import api from '../api';
+
 
 const MyProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -84,17 +123,42 @@ const MyProfile = () => {
 
           <Card bg="gray.800" borderRadius="2xl">
             <CardBody>
-              <Heading size="sm" color="white" mb={4}>Live Activity Logs</Heading>
-              <VStack align="stretch" spacing={3}>
-                {profile.recent_activities.map((act, i) => (
-                  <Box key={i} p={3} bg="whiteAlpha.50" borderRadius="md" borderLeft="3px solid" borderColor="green.400">
-                    <Text fontSize="10px" color="gray.500">{act.time}</Text>
-                    <Text color="white" fontSize="xs">{act.content}</Text>
-                  </Box>
-                ))}
-              </VStack>
-            </CardBody>
-          </Card>
+                <Heading size="sm" color="white" mb={4}>Live Activity Logs</Heading>
+                    <VStack align="stretch" spacing={3}>
+                    {profile.recent_activities.map((act, i) => (
+                     <Flex
+          key={i}
+          p={3}
+          bg="whiteAlpha.50"
+          borderRadius="md"
+          borderLeft="3px solid"
+          borderColor="green.400"
+          align="center"
+          justify="space-between"
+          transition="0.2s"
+          _hover={{ bg: "whiteAlpha.100" }} // Efek hover biar terasa interaktif
+        >
+          <Box>
+            <Text fontSize="10px" color="gray.500">{act.time}</Text>
+            <Text color="white" fontSize="xs">{act.content}</Text>
+          </Box>
+
+          {/* TOMBOL PANAH BARU */}
+          <IconButton
+            as={RouterLink}
+            to={`/leads/${act.lead_id}`}
+            icon={<FiChevronRight />}
+            size="sm"
+            variant="ghost"
+            colorScheme="green"
+            aria-label="View Detail"
+            _hover={{ transform: "translateX(3px)" }} // Animasi panah gerak sedikit
+          />
+        </Flex>
+      ))}
+                    </VStack>
+                </CardBody>
+            </Card>
         </VStack>
       </SimpleGrid>
 
