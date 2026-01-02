@@ -2,11 +2,16 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from dotenv import load_dotenv
+import os
 
-# Kunci rahasia (bebas ganti apa saja)
-SECRET_KEY = "USAH-STUDI-INDEPENDEN-UNESA-2025"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # Token aktif 1 hari
+# Load file .env
+load_dotenv()
+
+# Ambil dari environment variable, kalau tidak ada pakai fallback (opsional)
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key-untuk-dev")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

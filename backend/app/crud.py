@@ -160,13 +160,22 @@ def get_user_profile(db: Session):
     }
 
 def update_user_profile(db: Session, data: dict):
-    user = db.query(models.UserProfile).first()
-    if user:
+    # 1. Ambil profil yang ada di database
+    profile = db.query(models.UserProfile).first()
+    
+    if profile:
+        # 2. Tentukan field mana saja yang boleh di-update (Sesuai kolom di DB)
+        allowed_fields = ["name", "role", "email", "id_emp", "monthly_target"]
+        
+        # 3. Lakukan update hanya untuk field yang diizinkan
         for key, value in data.items():
-            setattr(user, key, value)
+            if key in allowed_fields:
+                setattr(profile, key, value)
+        
         db.commit()
-        db.refresh(user)
-    return user
+        db.refresh(profile)
+    
+    return profile
 
 def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
