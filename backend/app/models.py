@@ -1,13 +1,40 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
-from sqlalchemy.sql import func
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, func
+from sqlalchemy.orm import relationship
 from .database import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    is_active = Column(Boolean, default=True)
+
+    # Relasi ke Profile (One-to-One)
+    # uselist=False memastikan satu user hanya punya satu profil
+    profile = relationship("UserProfile", back_populates="owner", uselist=False)
+
+class UserProfile(Base):
+    __tablename__ = "user_profile"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id")) # Menghubungkan ke tabel users
+    
+    name = Column(String, default="Sales User")
+    role = Column(String, default="Senior Sales Representative")
+    email = Column(String, default="sales@bank-asah.co.id")
+    id_emp = Column(String, default="SLS-2025-001")
+    monthly_target = Column(Integer, default=150)
+    joined_date = Column(DateTime, server_default=func.now())
+
+    # Relasi balik ke User
+    owner = relationship("User", back_populates="profile")
 
 class Lead(Base):
     __tablename__ = "leads"
 
     id = Column(Integer, primary_key=True, index=True)
     
-    # --- Input Features (Bank Marketing Dataset) ---
     # Client demographics
     age = Column(Integer)
     job = Column(String)
@@ -22,9 +49,9 @@ class Lead(Base):
     month = Column(String)
     day_of_week = Column(String)
     
-    # Campaign info (No 'duration' because it's leakage!)
+    # Campaign info
     campaign = Column(Integer)
-    pdays = Column(Integer) # We will transform this to 'pernah_dihubungi' logic later
+    pdays = Column(Integer)
     previous = Column(Integer)
     poutcome = Column(String)
     
@@ -35,25 +62,14 @@ class Lead(Base):
     euribor3m = Column(Float)
     nr_employed = Column(Float)
 
-    # --- Prediction Results (Output) ---
-    prediction_score = Column(Float, nullable=True) # Probability (e.g., 0.85)
-    prediction_label = Column(String, nullable=True) # "High Potential" / "Low Potential"
-    shap_explanation = Column(String, nullable=True) # JSON string for top influencing factors
+    # Financial & Notes (Added in Step 7/8)
+    balance = Column(Float, default=0.0)
+    notes = Column(String, nullable=True)
+
+    # Prediction Results
+    prediction_score = Column(Float, nullable=True)
+    prediction_label = Column(String, nullable=True)
     
-    # --- System Info ---
+    # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
-    
-    balance = Column(Float, default=0.0) # Saldo Nasabah
-    notes = Column(String, nullable=True) # Catatan dari Tim Sales
-    
-class UserProfile(Base):
-        __tablename__ = "user_profile"
-
-        id = Column(Integer, primary_key=True, index=True)
-        name = Column(String, default="Ryan Besto Saragih")
-        role = Column(String, default="Senior Sales Representative")
-        email = Column(String, default="sales01@bank-asah.co.id")
-        id_emp = Column(String, default="SLS-2025-088")
-        monthly_target = Column(Integer, default=150)
-        joined_date = Column(DateTime, server_default=func.now())

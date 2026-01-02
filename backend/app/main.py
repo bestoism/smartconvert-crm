@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware  # <--- IMPORT INI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List
 import pandas as pd
@@ -8,6 +9,7 @@ import io
 from . import models, schemas, crud
 from .database import engine, get_db
 from .ml_service import ml_service
+from . import auth
 
 # Create Tables
 models.Base.metadata.create_all(bind=engine)
@@ -140,3 +142,24 @@ def update_lead_notes(lead_id: int, notes_data: dict, db: Session = Depends(get_
     db_lead.notes = notes_data.get("notes")
     db.commit()
     return {"status": "success", "message": "Note saved"}
+
+# Ini untuk mendeteksi token di header
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/login")
+
+# 1. Endpoint REGISTER
+@app.post("/api/v1/register")
+def register_user(user_data: dict, db: Session = Depends(get_db)):
+    existing_user = crud.get_user_by_username(db, username=user_data['username'])
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    return crud.create_user(db, user_data)
+
+# 2. Endpoint LOGIN (Menghasilkan Token)
+@app.post("/api/v1/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = crud.get_user_by_username(db, username=form_data.username)
+    if not user or not auth.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+    
+    access_token = auth.create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}

@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from . import models, schemas
 from datetime import datetime
+from . import auth
 
 # 1. Simpan Lead Baru ke Database
 def create_lead(db: Session, lead_data: dict, prediction: dict):
@@ -166,3 +167,26 @@ def update_user_profile(db: Session, data: dict):
         db.commit()
         db.refresh(user)
     return user
+
+def get_user_by_username(db: Session, username: str):
+    return db.query(models.User).filter(models.User.username == username).first()
+
+def create_user(db: Session, user_data: dict):
+    hashed_pwd = auth.get_password_hash(user_data['password'])
+    db_user = models.User(username=user_data['username'], hashed_password=hashed_pwd)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    
+    # Otomatis buatkan profil kosong saat user daftar
+    db_profile = models.UserProfile(
+        user_id=db_user.id, 
+        name=db_user.username, # Default pake username dulu
+        role="Junior Sales",
+        email=f"{db_user.username}@bank-asah.co.id",
+        id_emp=f"SLS-{db_user.id}"
+    )
+    db.add(db_profile)
+    db.commit()
+    
+    return db_user
