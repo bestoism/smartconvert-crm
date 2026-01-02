@@ -1,4 +1,4 @@
-# SmartConvert: End-to-End Predictive Lead Scoring CRM 🚀
+# SmartConvert: End-to-End Predictive Lead Scoring CRM
 
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/Frontend-React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
