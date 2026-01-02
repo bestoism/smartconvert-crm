@@ -125,8 +125,11 @@ def read_lead(lead_id: int, db: Session = Depends(get_db)):
 
 @app.get("/api/v1/user/profile")
 def read_user_profile(db: Session = Depends(get_db)):
-    # Mengambil data performa user
-    return crud.get_user_performance(db)
+    return crud.get_user_profile(db)
+
+@app.put("/api/v1/user/profile")
+def update_profile(data: dict, db: Session = Depends(get_db)):
+    return crud.update_user_profile(db, data)
 
 @app.put("/api/v1/leads/{lead_id}/notes")
 def update_lead_notes(lead_id: int, notes_data: dict, db: Session = Depends(get_db)):

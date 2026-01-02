@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from . import models, schemas
+from datetime import datetime
 
 # 1. Simpan Lead Baru ke Database
 def create_lead(db: Session, lead_data: dict, prediction: dict):
@@ -106,3 +107,57 @@ def get_user_performance(db: Session):
             "current_progress": high_leads
         }
     }
+    
+def get_user_profile(db: Session):
+    # Ambil user pertama (karena kita cuma punya 1 user untuk sekarang)
+    user = db.query(models.UserProfile).first()
+    if not user:
+        # Jika belum ada, buat default
+        user = models.UserProfile()
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
+    # Hitung Performa Real-time
+    total_leads = db.query(models.Lead).count()
+    high_leads = db.query(models.Lead).filter(models.Lead.prediction_label == "High Potential").count()
+    
+    # Hitung Active Days (Selisih hari ini dengan data lead pertama)
+    first_lead = db.query(models.Lead).order_by(models.Lead.created_at.asc()).first()
+    active_days = (datetime.now() - first_lead.created_at).days + 1 if first_lead else 0
+
+    # Ambil 5 Aktivitas Terbaru (Recent Activity)
+    recent_leads = db.query(models.Lead).order_by(models.Lead.created_at.desc()).limit(5).all()
+    activities = []
+    for lead in recent_leads:
+        action = "Added to database" if not lead.notes else "Updated notes for"
+        activities.append({
+            "time": lead.created_at.strftime("%Y-%m-%d %H:%M"),
+            "content": f"{action} Nasabah-{lead.id}"
+        })
+
+    return {
+        "id": user.id,
+        "name": user.name,
+        "role": user.role,
+        "email": user.email,
+        "id_emp": user.id_emp,
+        "monthly_target": user.monthly_target,
+        "joined_date": user.joined_date.strftime("%d %B %Y"),
+        "active_days": active_days,
+        "stats": {
+            "leads_processed": total_leads,
+            "conversion_rate": round((high_leads / total_leads * 100), 1) if total_leads > 0 else 0,
+            "current_progress": high_leads
+        },
+        "recent_activities": activities
+    }
+
+def update_user_profile(db: Session, data: dict):
+    user = db.query(models.UserProfile).first()
+    if user:
+        for key, value in data.items():
+            setattr(user, key, value)
+        db.commit()
+        db.refresh(user)
+    return user

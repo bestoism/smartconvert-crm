@@ -45,3 +45,14 @@ class Lead(Base):
     
     balance = Column(Float, default=0.0) # Saldo Nasabah
     notes = Column(String, nullable=True) # Catatan dari Tim Sales
+    
+class UserProfile(Base):
+        __tablename__ = "user_profile"
+
+        id = Column(Integer, primary_key=True, index=True)
+        name = Column(String, default="Ryan Besto Saragih")
+        role = Column(String, default="Senior Sales Representative")
+        email = Column(String, default="sales01@bank-asah.co.id")
+        id_emp = Column(String, default="SLS-2025-088")
+        monthly_target = Column(Integer, default=150)
+        joined_date = Column(DateTime, server_default=func.now())
