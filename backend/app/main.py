@@ -11,6 +11,12 @@ from .database import engine, get_db
 from .ml_service import ml_service
 from . import auth
 
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
+
 # Create Tables
 models.Base.metadata.create_all(bind=engine)
 
