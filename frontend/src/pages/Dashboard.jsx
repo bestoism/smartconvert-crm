@@ -189,7 +189,7 @@ const Dashboard = () => {
       </Box>
 
       {/* KPI Cards */}
-      <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6} mb={8}>
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={6} mb={8}>
         <StatCard label="Total Leads" value={stats?.total_leads || 0} icon={FiUsers} color="blue.400" />
         <StatCard label="High Potential" value={stats?.high_potential || 0} helpText="Ready to call" icon={FiTrendingUp} color="green.400" />
         <StatCard label="Medium Potential" value={stats?.medium_potential || 0} icon={FiActivity} color="yellow.400" />
@@ -230,7 +230,7 @@ const Dashboard = () => {
       </SimpleGrid>
 
       {/* Demographics Row */}
-      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={8}>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} mb={8}>
         {/* Age Groups */}
         <Card bg="gray.800" borderRadius="xl" p={5}>
           <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={4} textTransform="uppercase">Age Groups</Text>

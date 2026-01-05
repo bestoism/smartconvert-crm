@@ -20,7 +20,7 @@ const Leads = () => {
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      // Ambil 10 data per halaman (bisa diubah limitnya)
+      // Ambil 10 data per halaman
       const response = await api.get(`/leads?skip=${page * 10}&limit=10`);
       setLeads(response.data);
     } catch (error) {
@@ -75,7 +75,6 @@ const Leads = () => {
       });
     } finally {
       setUploading(false);
-      // Reset input file biar bisa upload file yang sama lagi kalau mau
       event.target.value = null; 
     }
   };
@@ -88,12 +87,19 @@ const Leads = () => {
   };
 
   return (
-    <Box p={8}>
-      <Flex mb={6} alignItems="center">
-        <Heading size="lg" color="white">Leads Data</Heading>
-        <Spacer />
+    <Box p={{ base: 4, md: 8 }}> {/* Padding responsif */}
+      <Flex 
+        mb={6} 
+        alignItems="center"
+        direction={{ base: "column", sm: "row" }} // Header menumpuk di HP
+        gap={{ base: 4, sm: 0 }}
+      >
+        <Heading size={{ base: "md", md: "lg" }} color="white" w="full">
+          Leads Data
+        </Heading>
+        <Spacer display={{ base: "none", sm: "block" }} />
         
-        {/* Tombol Upload (Input File disembunyikan) */}
+        {/* Tombol Upload */}
         <input 
           type="file" 
           ref={fileInputRef} 
@@ -106,66 +112,71 @@ const Leads = () => {
           colorScheme="green" 
           isLoading={uploading}
           loadingText="Processing..."
-          onClick={() => fileInputRef.current.click()} // Trigger input file
+          onClick={() => fileInputRef.current.click()} 
+          w={{ base: "full", sm: "auto" }} // Tombol full width di HP
         >
           Upload CSV
         </Button>
       </Flex>
 
-      <Card bg="gray.800" overflowX="auto">
-        <CardBody>
+      <Card bg="gray.800">
+        <CardBody p={{ base: 3, md: 5 }}>
           {loading ? (
             <Center p={10}><Spinner color="green.400" /></Center>
           ) : (
-            <Table variant="simple" colorScheme="whiteAlpha">
-              <Thead>
-                <Tr>
-                  <Th color="gray.400">ID</Th>
-                  <Th color="gray.400">Job</Th>
-                  <Th color="gray.400">Marital</Th>
-                  <Th color="gray.400">Prediction</Th>
-                  <Th color="gray.400">Score</Th>
-                  <Th color="gray.400">Action</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {leads.map((lead) => (
-                  <Tr key={lead.id} _hover={{ bg: "gray.700" }}>
-                    <Td>#{lead.id}</Td>
-                    <Td textTransform="capitalize">{lead.job}</Td>
-                    <Td textTransform="capitalize">{lead.marital}</Td>
-                    <Td>
-                      <Badge colorScheme={getBadgeColor(lead.prediction_label)}>
-                        {lead.prediction_label}
-                      </Badge>
-                    </Td>
-                    <Td width="200px">
-                      <HStack>
-                        <Text fontSize="sm" w="40px">{(lead.prediction_score * 100).toFixed(0)}%</Text>
-                        <Progress 
-                          value={lead.prediction_score * 100} 
-                          size="sm" 
-                          width="100px" 
-                          colorScheme={getBadgeColor(lead.prediction_label)} 
-                          borderRadius="full"
-                        />
-                      </HStack>
-                    </Td>
-                    <Td>
-                      <Link to={`/leads/${lead.id}`}>
-                        <Button size="sm" variant="outline" colorScheme="blue" rightIcon={<FiEye />}>
-                          Detail
-                        </Button>
-                      </Link>
-                    </Td>
+            /* --- PENERAPAN PERUBAHAN DI SINI --- */
+            <Box overflowX="auto"> {/* SAKTI: Wrapper agar tabel bisa di-scroll horizontal */}
+              <Table variant="simple" colorScheme="whiteAlpha" size="md">
+                <Thead>
+                  <Tr>
+                    <Th color="gray.400">ID</Th>
+                    <Th color="gray.400">Job</Th>
+                    <Th color="gray.400">Marital</Th>
+                    <Th color="gray.400">Prediction</Th>
+                    <Th color="gray.400">Score</Th>
+                    <Th color="gray.400">Action</Th>
                   </Tr>
-                ))}
-              </Tbody>
-            </Table>
+                </Thead>
+                <Tbody>
+                  {leads.map((lead) => (
+                    <Tr key={lead.id} _hover={{ bg: "gray.700" }} whiteSpace="nowrap"> {/* whiteSpace agar teks tidak turun */}
+                      <Td>#{lead.id}</Td>
+                      <Td textTransform="capitalize">{lead.job}</Td>
+                      <Td textTransform="capitalize">{lead.marital}</Td>
+                      <Td>
+                        <Badge colorScheme={getBadgeColor(lead.prediction_label)}>
+                          {lead.prediction_label}
+                        </Badge>
+                      </Td>
+                      <Td minW="200px">
+                        <HStack>
+                          <Text fontSize="sm" w="40px">{(lead.prediction_score * 100).toFixed(0)}%</Text>
+                          <Progress 
+                            value={lead.prediction_score * 100} 
+                            size="sm" 
+                            width="100%" 
+                            colorScheme={getBadgeColor(lead.prediction_label)} 
+                            borderRadius="full"
+                          />
+                        </HStack>
+                      </Td>
+                      <Td>
+                        <Link to={`/leads/${lead.id}`}>
+                          <Button size="sm" variant="outline" colorScheme="blue" rightIcon={<FiEye />}>
+                            Detail
+                          </Button>
+                        </Link>
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </Box>
+            /* --- AKHIR PERUBAHAN --- */
           )}
           
-          {/* Pagination Sederhana */}
-          <Flex mt={4} justifyContent="flex-end" alignItems="center">
+          {/* Pagination */}
+          <Flex mt={4} justifyContent={{ base: "center", md: "flex-end" }} alignItems="center">
             <IconButton 
               icon={<FiChevronLeft />} 
               onClick={() => setPage(p => Math.max(0, p - 1))} 
@@ -177,7 +188,7 @@ const Leads = () => {
             <IconButton 
               icon={<FiChevronRight />} 
               onClick={() => setPage(p => p + 1)} 
-              isDisabled={leads.length < 10} // Disable kalau data kurang dari limit
+              isDisabled={leads.length < 10} 
               ml={2}
               size="sm"
             />

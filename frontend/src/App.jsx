@@ -40,7 +40,13 @@ function App() {
             isAuthenticated ? (
               <Flex h="100vh" bg="gray.900">
                 <Sidebar />
-                <Box flex="1" ml={{ base: 0, md: 60 }} bg="gray.900" overflowY="auto">
+                <Box 
+                flex="1" 
+                ml={{ base: 0, md: 60 }} // Mobile: margin 0, Desktop: margin 240px (lebar sidebar)
+                p={{ base: 4, md: 8 }}   // Padding lebih kecil di mobile
+                bg="gray.900" 
+                overflowY="auto"
+              > 
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/leads" element={<Leads />} />

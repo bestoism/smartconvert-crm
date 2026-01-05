@@ -44,7 +44,10 @@ const Sidebar = () => {
 
   return (
     <Box
-      w={{ base: 'full', md: 60 }}
+      // --- PERUBAHAN DI SINI ---
+      display={{ base: 'none', md: 'block' }} // Sembunyikan di HP (base), tampilkan blok di Laptop (md ke atas)
+      w={60} // Lebar tetap 60 (karena hanya muncul di desktop)
+      // -------------------------
       pos="fixed"
       h="full"
       bg="gray.900"
