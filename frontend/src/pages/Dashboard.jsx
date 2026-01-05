@@ -178,7 +178,12 @@ const Dashboard = () => {
   }
 
   return (
-    <Box p={8} bg="gray.900" minH="100vh">
+    <Box 
+      bg="gray.900" 
+        minH="100vh" 
+        p={{ base: 4, md: 8 }} 
+        w="full"
+      >
       <ChartGradients />
       
       <Box mb={8}>

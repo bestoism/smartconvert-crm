@@ -79,19 +79,18 @@ const NavItem = ({ icon, children, to, onClick }) => {
 const MobileNav = ({ onOpen, ...rest }) => {
   return (
     <Flex
-      ml={{ base: 0, md: 60 }}
-      px={{ base: 4, md: 4 }}
+      // Hapus margin left di sini agar header menempel ke kiri di mobile
+      px={4}
       height="20"
       alignItems="center"
       bg="gray.900"
       borderBottomWidth="1px"
       borderBottomColor="gray.700"
-      justifyContent={{ base: 'space-between', md: 'flex-end' }}
-      display={{ base: 'flex', md: 'none' }} // Hanya muncul di mobile
+      justifyContent="space-between" // Menaruh Hamburger di kiri, Logo di tengah/kanan
+      display={{ base: 'flex', md: 'none' }}
       {...rest}
     >
       <IconButton
-        display={{ base: 'flex', md: 'none' }}
         onClick={onOpen}
         variant="outline"
         color="green.400"
@@ -100,7 +99,6 @@ const MobileNav = ({ onOpen, ...rest }) => {
       />
 
       <Text
-        display={{ base: 'flex', md: 'none' }}
         fontSize="xl"
         fontFamily="monospace"
         fontWeight="bold"
@@ -108,6 +106,9 @@ const MobileNav = ({ onOpen, ...rest }) => {
       >
         SmartConvert
       </Text>
+      
+      {/* Spacer kosong agar logo tetap di tengah atau kanan */}
+      <Box w={8} /> 
     </Flex>
   );
 };
