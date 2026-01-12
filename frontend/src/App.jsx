@@ -1,8 +1,10 @@
-import React from 'react';
-import { Box } from '@chakra-ui/react'; // Flex dihapus karena tidak lagi digunakan di struktur baru
+import React, { useState, useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Import Komponen & Halaman
+// Import Pages
+import LandingPage from './pages/LandingPage'; // <--- Import Baru
+import Documentation from './pages/Documentation'; // <--- Import Baru
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Leads from './pages/Leads';
@@ -11,46 +13,60 @@ import MyProfile from './pages/MyProfile';
 import Login from './pages/Login';
 
 function App() {
-  // Logic sesuai permintaan: Langsung cek localStorage tanpa useState/useEffect
-  const isAuthenticated = !!localStorage.getItem('token');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsAuthenticated(!!localStorage.getItem('token'));
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   return (
     <Router>
       <Routes>
-        {/* Route Login: Jika sudah login, redirect ke Home. Jika belum, tampilkan Login */}
+        {/* --- PUBLIC ROUTES (Bisa diakses tanpa login) --- */}
+        
+        {/* Halaman Depan: Jika sudah login masuk Dashboard, jika belum masuk Landing Page */}
+        <Route 
+          path="/" 
+          element={!isAuthenticated ? <LandingPage /> : <Navigate to="/dashboard" replace />} 
+        />
+        
+        <Route path="/docs" element={<Documentation />} />
+
         <Route 
           path="/login" 
-          element={!isAuthenticated ? <Login /> : <Navigate to="/" replace />} 
+          element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} 
         />
 
-        {/* Route Terproteksi */}
+        {/* --- PROTECTED ROUTES (Butuh Login) --- */}
         <Route 
           path="/*" 
           element={
             isAuthenticated ? (
-              // Gunakan Box sebagai pembungkus utama agar lebih stabil (minH 100vh)
               <Box minH="100vh" bg="gray.900">
-                {/* Sidebar mengandung logic Drawer & Desktop Sidebar */}
                 <Sidebar />
-                
-                {/* Konten Utama dengan penyesuaian margin, padding, dan transisi */}
                 <Box 
                   ml={{ base: 0, md: 60 }} 
                   p={{ base: 0, md: 4 }} 
                   transition="margin-left 0.3s ease"
                 >
                   <Routes>
-                    <Route path="/" element={<Dashboard />} />
+                    {/* Kita ubah path dashboard jadi /dashboard biar rapi */}
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/leads" element={<Leads />} />
                     <Route path="/leads/:id" element={<LeadDetail />} />
                     <Route path="/profile" element={<MyProfile />} />
-                    {/* Catch-all jika route tidak ditemukan */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
+                    {/* Kalau user nyasar ke link ngawur setelah login, balikin ke dashboard */}
+                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </Box>
               </Box>
             ) : (
-              <Navigate to="/login" replace />
+              // Jika mencoba akses route terproteksi tapi belum login, lempar ke Landing Page (atau Login)
+              <Navigate to="/" replace />
             )
           } 
         />
@@ -59,5 +75,4 @@ function App() {
   );
 }
 
-// --- BARIS INI WAJIB ADA ---
 export default App;

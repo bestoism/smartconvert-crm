@@ -36,7 +36,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
       </Flex>
       
       <VStack spacing={2} align="stretch">
-        <NavItem icon={FiHome} to="/" onClick={onClose}>Dashboard</NavItem>
+        <NavItem icon={FiHome} to="/dashboard" onClick={onClose}>Dashboard</NavItem>
         <NavItem icon={FiDatabase} to="/leads" onClick={onClose}>Leads Data</NavItem>
         <NavItem icon={FiUser} to="/profile" onClick={onClose}>My Profile</NavItem>
       </VStack>
