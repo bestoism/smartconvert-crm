@@ -123,7 +123,7 @@ class MLService:
                 recommendation = "Sesuaikan nada bicara dengan usia nasabah (pensiunan vs pekerja aktif)."
             
             return {
-                "shap_values": explanation[:5], # Ambil Top 5
+                "shap_values": explanation[:5], 
                 "recommendation": recommendation
             }
             

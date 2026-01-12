@@ -99,6 +99,7 @@ const LeadDetail = () => {
         {/* KOLOM 2: AI ANALYTICS & NOTES */}
         <GridItem>
           <VStack spacing={6} align="stretch">
+            {/* AI Score Card */}
             <Card bg="gray.800" borderRadius="xl">
               <CardBody textAlign="center">
                 <Text fontSize="xs" fontWeight="bold" color="gray.500" mb={4} textTransform="uppercase">AI Conversion Score</Text>
@@ -117,6 +118,25 @@ const LeadDetail = () => {
               </CardBody>
             </Card>
 
+            {/* --- SISIPKAN INI (Next Best Conversation) --- */}
+            <Card bg="blue.900" borderColor="blue.700" borderWidth={1}>
+              <CardBody>
+                <Flex align="start">
+                  <Icon as={FiMessageSquare} w={5} h={5} color="blue.300" mt={1} mr={3} />
+                  <Box>
+                    <Heading size="xs" color="blue.200" mb={1} textTransform="uppercase">
+                      AI Recommendation
+                    </Heading>
+                    <Text color="white" fontSize="md" fontStyle="italic">
+                      "{lead.explanation?.recommendation || "Lakukan pendekatan standar."}"
+                    </Text>
+                  </Box>
+                </Flex>
+              </CardBody>
+            </Card>
+            {/* --------------------------------------------- */}
+
+            {/* Sales Note Card */}
             <Card bg="gray.800" borderRadius="xl">
               <CardBody>
                 <HStack mb={4}>
