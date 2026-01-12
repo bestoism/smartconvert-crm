@@ -99,9 +99,15 @@ async def upload_leads_csv(file: UploadFile = File(...), db: Session = Depends(g
         raise HTTPException(status_code=500, detail=f"Error processing CSV: {str(e)}")
 
 # --- 2. Endpoint Get Leads (List Data) ---
+# Ubah endpoint /api/v1/leads menjadi:
 @app.get("/api/v1/leads", response_model=List[schemas.LeadResponse])
-def read_leads(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    leads = crud.get_leads(db, skip=skip, limit=limit)
+def read_leads(
+    skip: int = 0, 
+    limit: int = 100, 
+    sort_by: str = "newest", # Parameter baru
+    db: Session = Depends(get_db)
+):
+    leads = crud.get_leads(db, skip=skip, limit=limit, sort_by=sort_by)
     return leads
 
 # --- 3. Endpoint Dashboard Stats (BI Logic) ---

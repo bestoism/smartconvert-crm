@@ -17,8 +17,20 @@ def create_lead(db: Session, lead_data: dict, prediction: dict):
     return db_lead
 
 # 2. Ambil List Leads (dengan Pagination biar ringan)
-def get_leads(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Lead).order_by(models.Lead.id.desc()).offset(skip).limit(limit).all()
+def get_leads(db: Session, skip: int = 0, limit: int = 100, sort_by: str = "newest"):
+    query = db.query(models.Lead)
+    
+    # Logika Sorting
+    if sort_by == "score_high":
+        query = query.order_by(models.Lead.prediction_score.desc())
+    elif sort_by == "score_low":
+        query = query.order_by(models.Lead.prediction_score.asc())
+    elif sort_by == "oldest":
+        query = query.order_by(models.Lead.id.asc())
+    else: # Default: Newest (ID Descending)
+        query = query.order_by(models.Lead.id.desc())
+        
+    return query.offset(skip).limit(limit).all()
 
 # 3. Ambil Detail Satu Lead
 def get_lead_by_id(db: Session, lead_id: int):
