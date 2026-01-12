@@ -15,11 +15,11 @@ const Feature = ({ title, text, icon }) => {
       borderColor="gray.700"
       align={'start'}
       transition="all 0.3s"
-      _hover={{ transform: 'translateY(-5px)', borderColor: 'green.400' }} // Hover jadi Hijau
+      _hover={{ transform: 'translateY(-5px)', borderColor: 'green.400' }}
     >
       <Flex
         w={10} h={10} align={'center'} justify={'center'}
-        color={'white'} rounded={'full'} bg={'green.500'} mb={1} // Ikon Hijau
+        color={'white'} rounded={'full'} bg={'green.500'} mb={1}
       >
         {icon}
       </Flex>
@@ -33,19 +33,19 @@ const LandingPage = () => {
   return (
     <Box bg="gray.900" minH="100vh">
       {/* --- HERO SECTION --- */}
-      <Container maxW={'5xl'}>
+      <Container maxW={'5xl'} px={{ base: 6, md: 10 }}> {/* Tambah Padding di HP */}
         <Stack
           textAlign={'center'}
           align={'center'}
           spacing={{ base: 8, md: 10 }}
-          py={{ base: 20, md: 28 }}
+          py={{ base: 16, md: 28 }} // Padding atas lebih kecil dikit di HP biar muat
         >
           {/* Badge Kecil Hijau */}
           <Box
             px={3} py={1} rounded="full"
             bg="green.900" border="1px solid" borderColor="green.700"
           >
-            <Text fontSize="sm" color="green.200" fontWeight="bold">
+            <Text fontSize={{ base: "xs", md: "sm" }} color="green.200" fontWeight="bold">
               🚀 New V2 Model: No Data Leakage
             </Text>
           </Box>
@@ -53,24 +53,30 @@ const LandingPage = () => {
           {/* Judul Besar */}
           <Heading
             fontWeight={800}
-            fontSize={{ base: '4xl', md: '6xl', lg: '7xl' }}
+            // Font size menyesuaikan: HP (3xl), Tablet (5xl), Laptop (6xl)
+            fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }} 
             lineHeight={'110%'}
             color="white"
           >
             SmartConvert <br />
-            <Text as={'span'} color={'green.400'}> {/* Highlight Hijau */}
+            <Text as={'span'} color={'green.400'}>
               AI-Powered CRM
             </Text>
           </Heading>
 
           {/* Deskripsi */}
-          <Text color={'gray.400'} maxW={'3xl'} fontSize={'xl'}>
+          <Text color={'gray.400'} maxW={'3xl'} fontSize={{ base: 'md', md: 'xl' }}>
             Tingkatkan konversi penjualan deposito bank Anda dengan kekuatan Machine Learning. 
             Prediksi nasabah potensial secara akurat, transparan, dan efisien.
           </Text>
 
-          {/* Tombol Aksi */}
-          <Stack spacing={6} direction={'row'}>
+          {/* --- BAGIAN TOMBOL RESPONSIVE --- */}
+          <Stack 
+            spacing={4} 
+            // HP: Column (Atas-Bawah), Laptop: Row (Samping-Sampingan)
+            direction={{ base: 'column', sm: 'row' }} 
+            w={{ base: '100%', sm: 'auto' }} // Di HP lebar 100%
+          >
             <Button
               as={Link} to="/login"
               rounded={'full'}
@@ -80,6 +86,7 @@ const LandingPage = () => {
               _hover={{ bg: 'green.600' }}
               rightIcon={<FiArrowRight />}
               fontSize="lg"
+              w={{ base: '100%', sm: 'auto' }} // Tombol penuh di HP
             >
               Login / Register
             </Button>
@@ -88,10 +95,11 @@ const LandingPage = () => {
               rounded={'full'}
               px={8} py={6}
               variant="outline"
-              colorScheme="green" // Outline Hijau
+              colorScheme="green"
               leftIcon={<FiBook />}
               fontSize="lg"
               _hover={{ bg: 'whiteAlpha.100' }}
+              w={{ base: '100%', sm: 'auto' }} // Tombol penuh di HP
             >
               Documentation
             </Button>
@@ -100,8 +108,9 @@ const LandingPage = () => {
       </Container>
 
       {/* --- FEATURES SECTION --- */}
-      <Box bg="gray.900" py={10} borderTop="1px solid" borderColor="gray.800">
-        <Container maxW={'6xl'}>
+      <Box bg="gray.900" py={12} borderTop="1px solid" borderColor="gray.800">
+        <Container maxW={'6xl'} px={{ base: 6, md: 10 }}>
+          {/* SimpleGrid otomatis mengatur kolom: 1 di HP, 3 di Laptop */}
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
             <Feature
               icon={<Icon as={FiTrendingUp} w={5} h={5} />}
@@ -125,7 +134,7 @@ const LandingPage = () => {
       {/* --- FOOTER SIMPLE --- */}
       <Box py={6} textAlign="center" borderTop="1px solid" borderColor="gray.800">
         <Text color="gray.500" fontSize="sm">
-          Built with ❤️ by Ryan Besto Saragih (UNESA)
+          Built by bestoism
         </Text>
       </Box>
     </Box>
