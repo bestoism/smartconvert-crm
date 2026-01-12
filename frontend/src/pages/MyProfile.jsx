@@ -80,7 +80,7 @@ const MyProfile = () => {
     <Box p={8} bg="gray.900" minH="100vh">
       <Flex justify="space-between" align="center" mb={8}>
         <Heading size="lg" color="white">My Profile</Heading>
-        <Button leftIcon={<FiEdit3 />} colorScheme="whiteAlpha" onClick={onOpen}>Edit Profile</Button>
+        <Button leftIcon={<FiEdit3 />} variant="primary" onClick={onOpen}>Edit Profile</Button>
       </Flex>
 
       <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={8}>
