@@ -3,10 +3,9 @@ import {
   Box, Flex, VStack, Heading, Text, FormControl, FormLabel, 
   Input, Button, useToast, Card, CardBody, InputGroup, InputRightElement
 } from '@chakra-ui/react';
-// Tambahkan FiArrowLeft untuk ikon kembali
-import { FiLock, FiUser, FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
-import axios from 'axios';
-// Tambahkan Link untuk navigasi
+import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
+// Hapus import axios, ganti dengan import api dari ../api
+import api from '../api'; 
 import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
@@ -27,10 +26,10 @@ const Login = () => {
     formData.append('password', password);
 
     try {
-      // Pastikan URL API sesuai dengan konfigurasi backend/deployment kamu
-      // Jika sudah deploy, gunakan URL Vercel/Render, jika lokal gunakan localhost
-      // Disarankan menggunakan instance api dari api.js jika memungkinkan, tapi axios langsung juga oke untuk login
-      const response = await axios.post('http://127.0.0.1:8000/api/v1/login', formData);
+      // PERBAIKAN DI SINI:
+      // Jangan pakai URL lengkap, cukup endpoint-nya saja.
+      // api.post akan otomatis menyambungkannya dengan baseURL dari Vercel/HF
+      const response = await api.post('/login', formData);
       
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('user', username);
@@ -42,7 +41,6 @@ const Login = () => {
         duration: 3000,
       });
 
-      // Arahkan ke /dashboard karena di App.jsx route '/' diarahkan ke Landing Page jika belum login
       navigate('/dashboard'); 
       window.location.reload(); 
     } catch (error) {
@@ -58,10 +56,7 @@ const Login = () => {
   };
 
   return (
-    // Tambahkan position="relative" agar tombol absolute bisa diposisikan relatif terhadap container ini
     <Flex minH="100vh" align="center" justify="center" bg="gray.900" position="relative">
-      
-      {/* --- TOMBOL KEMBALI (BARU) --- */}
       <Button
         as={Link}
         to="/"
@@ -75,7 +70,6 @@ const Login = () => {
       >
         Back to Home
       </Button>
-      {/* ----------------------------- */}
 
       <VStack spacing={8} w="full" maxW="md" p={6}>
         <VStack spacing={2} textAlign="center">
@@ -135,7 +129,6 @@ const Login = () => {
   );
 };
 
-// Helper component
 const IconButton = ({ icon, onClick, ...props }) => (
   <Box as="button" onClick={onClick} type="button" {...props}>
     {icon}
