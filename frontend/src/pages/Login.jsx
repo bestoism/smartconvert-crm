@@ -21,15 +21,20 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const formData = new FormData();
-    formData.append('username', username);
-    formData.append('password', password);
+    // GANTI BAGIAN INI: Gunakan URLSearchParams alih-alih FormData
+    // Ini format standar 'application/x-www-form-urlencoded' yang disukai FastAPI
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('password', password);
 
     try {
-      // PERBAIKAN DI SINI:
-      // Jangan pakai URL lengkap, cukup endpoint-nya saja.
-      // api.post akan otomatis menyambungkannya dengan baseURL dari Vercel/HF
-      const response = await api.post('/login', formData);
+      // PERBAIKAN PENTING:
+      // Kita timpa headers khusus untuk request ini saja
+      const response = await api.post('/login', params, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
       
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('user', username);
@@ -44,9 +49,12 @@ const Login = () => {
       navigate('/dashboard'); 
       window.location.reload(); 
     } catch (error) {
+      // Debugging: Cek console untuk lihat detail error
+      console.error("Login Error Details:", error.response?.data);
+      
       toast({
         title: "Login Failed",
-        description: "Invalid username or password",
+        description: error.response?.data?.detail || "Invalid username or password",
         status: "error",
         duration: 3000,
       });
