@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
   Box, Flex, VStack, Heading, Text, FormControl, FormLabel, 
-  Input, Button, useToast, Card, CardBody, InputGroup, InputRightElement
+  Input, Button, useToast, Card, CardBody, InputGroup, InputRightElement,
+  Link as ChakraLink // <--- PERBAIKAN: Menambahkan ini agar tidak error ReferenceError
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
-// Hapus import axios, ganti dengan import api dari ../api
 import api from '../api'; 
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -21,15 +21,13 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // GANTI BAGIAN INI: Gunakan URLSearchParams alih-alih FormData
-    // Ini format standar 'application/x-www-form-urlencoded' yang disukai FastAPI
+    // Format standar untuk login FastAPI (OAuth2PasswordRequestForm)
     const params = new URLSearchParams();
     params.append('username', username);
     params.append('password', password);
 
     try {
-      // PERBAIKAN PENTING:
-      // Kita timpa headers khusus untuk request ini saja
+      // Menggunakan header content-type yang benar untuk form data
       const response = await api.post('/login', params, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -49,7 +47,6 @@ const Login = () => {
       navigate('/dashboard'); 
       window.location.reload(); 
     } catch (error) {
-      // Debugging: Cek console untuk lihat detail error
       console.error("Login Error Details:", error.response?.data);
       
       toast({
@@ -65,6 +62,7 @@ const Login = () => {
 
   return (
     <Flex minH="100vh" align="center" justify="center" bg="gray.900" position="relative">
+      {/* Tombol Kembali ke Landing Page */}
       <Button
         as={Link}
         to="/"
@@ -129,6 +127,7 @@ const Login = () => {
                   Sign In
                 </Button>
 
+                {/* Link ke Register */}
                 <Text color="gray.500" fontSize="sm" mt={4}>
                   Don't have an account?{' '}
                   <ChakraLink as={Link} to="/register" color="green.400" fontWeight="bold">
@@ -144,6 +143,7 @@ const Login = () => {
   );
 };
 
+// Helper component untuk IconButton di dalam Input
 const IconButton = ({ icon, onClick, ...props }) => (
   <Box as="button" onClick={onClick} type="button" {...props}>
     {icon}
