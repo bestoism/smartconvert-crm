@@ -128,6 +128,13 @@ const Login = () => {
                 >
                   Sign In
                 </Button>
+
+                <Text color="gray.500" fontSize="sm" mt={4}>
+                  Don't have an account?{' '}
+                  <ChakraLink as={Link} to="/register" color="green.400" fontWeight="bold">
+                    Register here
+                  </ChakraLink>
+                </Text>
               </VStack>
             </form>
           </CardBody>

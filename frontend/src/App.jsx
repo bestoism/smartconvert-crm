@@ -11,6 +11,7 @@ import Leads from './pages/Leads';
 import LeadDetail from './pages/LeadDetail';
 import MyProfile from './pages/MyProfile';
 import Login from './pages/Login';
+import Register from './pages/Register';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -39,6 +40,11 @@ function App() {
         <Route 
           path="/login" 
           element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} 
+        />
+
+        <Route 
+          path="/register" 
+          element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" replace />} 
         />
 
         {/* --- PROTECTED ROUTES (Butuh Login) --- */}
