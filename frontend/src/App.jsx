@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+// PERUBAHAN DI SINI: Ganti BrowserRouter menjadi HashRouter
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Import Pages
-import LandingPage from './pages/LandingPage'; // <--- Import Baru
-import Documentation from './pages/Documentation'; // <--- Import Baru
+// Import Komponen & Halaman
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Leads from './pages/Leads';
@@ -12,6 +11,8 @@ import LeadDetail from './pages/LeadDetail';
 import MyProfile from './pages/MyProfile';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import LandingPage from './pages/LandingPage';
+import Documentation from './pages/Documentation';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -20,16 +21,16 @@ function App() {
     const handleStorageChange = () => {
       setIsAuthenticated(!!localStorage.getItem('token'));
     };
+
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (
+    // Router sekarang menggunakan HashRouter (URL pakai #)
     <Router>
       <Routes>
-        {/* --- PUBLIC ROUTES (Bisa diakses tanpa login) --- */}
-        
-        {/* Halaman Depan: Jika sudah login masuk Dashboard, jika belum masuk Landing Page */}
+        {/* --- PUBLIC ROUTES --- */}
         <Route 
           path="/" 
           element={!isAuthenticated ? <LandingPage /> : <Navigate to="/dashboard" replace />} 
@@ -41,13 +42,13 @@ function App() {
           path="/login" 
           element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} 
         />
-
+        
         <Route 
           path="/register" 
           element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" replace />} 
         />
 
-        {/* --- PROTECTED ROUTES (Butuh Login) --- */}
+        {/* --- PROTECTED ROUTES --- */}
         <Route 
           path="/*" 
           element={
@@ -60,18 +61,15 @@ function App() {
                   transition="margin-left 0.3s ease"
                 >
                   <Routes>
-                    {/* Kita ubah path dashboard jadi /dashboard biar rapi */}
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/leads" element={<Leads />} />
                     <Route path="/leads/:id" element={<LeadDetail />} />
                     <Route path="/profile" element={<MyProfile />} />
-                    {/* Kalau user nyasar ke link ngawur setelah login, balikin ke dashboard */}
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </Box>
               </Box>
             ) : (
-              // Jika mencoba akses route terproteksi tapi belum login, lempar ke Landing Page (atau Login)
               <Navigate to="/" replace />
             )
           } 
